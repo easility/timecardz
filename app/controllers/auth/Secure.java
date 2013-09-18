@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+
 import play.Play;
 import play.data.validation.Required;
 import play.data.validation.Validation;
@@ -26,7 +27,6 @@ import play.mvc.Scope.Session;
 import play.utils.Java;
 import controllers.Application;
 import controllers.OtherStuff;
-
 public class Secure extends Controller {
 
 	private static final Logger log = LoggerFactory.getLogger(Secure.class);
@@ -118,7 +118,7 @@ public class Secure extends Controller {
             response.setCookie("rememberme", Crypto.sign(username + "-" + expiration.getTime()) + "-" + username + "-" + expiration.getTime(), duration);
         }
         
-        OtherStuff.dashboard();
+      OtherStuff.dashboard();
     }
 
     @Util

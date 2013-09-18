@@ -1,14 +1,12 @@
 package controllers;
 
-import java.util.UUID;
-
+import controllers.auth.Secure;
 import models.EmailToUserDbo;
 import models.Token;
 import models.UserDbo;
+
 import play.db.jpa.JPA;
 import play.mvc.Controller;
-//import controllers.auth.Secure;
-//import controllers.auth.Secure.Security;
 
 public class Register extends Controller {
 	// This is for company admin
@@ -28,7 +26,11 @@ public class Register extends Controller {
 		if (!email.contains("@"))
 			validation.addError("email", "This is not a valid email");
 
-		
+		EmailToUserDbo existing = JPA.em().find(EmailToUserDbo.class, email);
+		if (existing != null) {
+			validation.addError("email", "This email already exists");
+		}
+
 		if (validation.hasErrors()) {
 			params.flash(); // add http parameters to the flash scope
 			validation.keep(); // keep the errors for the next request
@@ -38,16 +40,19 @@ public class Register extends Controller {
 		UserDbo user = new UserDbo();
 		user.setEmail(email);
 		user.setPassword(password);
+		// Add self as manager for company Admin
 		user.setManager(user);
 		user.setAdmin(true);
 		JPA.em().persist(user);
+		System.out.println("hhjjjadsgdddddddddd");
+        System.out.println("userid:"+user.getId());
 		EmailToUserDbo emailToUser = new EmailToUserDbo();
-		emailToUser.setId(email);
+		emailToUser.setEmail(email);
 		emailToUser.setValue(user.getId());
 		JPA.em().persist(emailToUser);
-        JPA.em().flush();
-		
-		//OtherStuff.company();
+		JPA.em().flush();
+		Secure.addUserToSession(user.getEmail());
+		OtherStuff.company();
 	}
 
 	public static void userRegister() {
@@ -99,22 +104,21 @@ public class Register extends Controller {
 			userRegister();
 		}
 		UserDbo user = JPA.em().find(UserDbo.class, existing.getValue());
-		 user.setEmail(email);
+		user.setEmail(email);
 		user.setPassword(password);
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
 		user.setPhone(phone);
 		user.setAdmin(false);
-		 JPA.em().persist(user);
+		JPA.em().persist(user);
 
-		EmailToUserDbo ref = JPA.em().find(EmailToUserDbo.class,
-				user.getManager().getEmail());
+		EmailToUserDbo ref = JPA.em().find(EmailToUserDbo.class, user.getManager().getEmail());
 		UserDbo manager = JPA.em().find(UserDbo.class, ref.getValue());
 		manager.addEmployee(user);
 		JPA.em().persist(manager);
 
 		JPA.em().flush();
-		//Secure.addUserToSession(user.getEmail());
-		//OtherStuff.employee();
+		Secure.addUserToSession(user.getEmail());
+		OtherStuff.employee();
 	}
 }

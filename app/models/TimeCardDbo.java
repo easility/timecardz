@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
@@ -13,17 +14,20 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import play.db.jpa.GenericModel;
+import play.db.jpa.Model;
+
+import com.sun.org.apache.xpath.internal.operations.Mod;
+
+
 
 @Entity
-public class TimeCardDbo extends GenericModel{
+public class TimeCardDbo {
 
 	private static DateTimeFormatter fmt = DateTimeFormat
 			.forPattern("MMM dd, yyyy");
-
-	@Id
-	private String id;
-
+   @Id
+   @GeneratedValue
+   private int id;
 	private LocalDate beginOfWeek;
 
 	private int numberOfHours;
@@ -32,14 +36,23 @@ public class TimeCardDbo extends GenericModel{
 	
 	private boolean approved;
 	
-	@OneToMany
+    @OneToMany
 	private List<DayCardDbo> daycards = new ArrayList<DayCardDbo>();
 
-	private String status;
+	public List<DayCardDbo> getDaycards() {
+	return daycards;
+}
 
-	public String getId() {
-		return id;
-	}
+public void setDaycards(List<DayCardDbo> daycards) {
+	this.daycards = daycards;
+}
+
+public void setStatus(String status) {
+	this.status = status;
+}
+
+	private String status;
+	
 
 	public void setId(LocalDate beginOfWeek) {
 		this.beginOfWeek = beginOfWeek;
@@ -92,15 +105,8 @@ public class TimeCardDbo extends GenericModel{
 		this.status = status.getDbValue();
 	}
 
-	public List<DayCardDbo> getDaycards() {
-		return daycards;
-	}
-
-	public void setDaycards(List<DayCardDbo> daycards) {
-		this.daycards = daycards;
-	}
-
+	
 	public void addDayCard(DayCardDbo dayCard) {
 		this.daycards.add(dayCard);
 	}
-}
+	}

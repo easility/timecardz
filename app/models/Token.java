@@ -3,11 +3,10 @@ package models;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import play.db.jpa.Model;
+
 
 @Entity
-public class Token extends Model{
-
+public class Token {
 	@Id
 	private String token;
 

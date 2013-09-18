@@ -10,8 +10,6 @@ import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 import play.Play;
 import play.db.jpa.JPA;
 import play.libs.Mail;
@@ -29,7 +27,6 @@ public class Utility {
 		if(ref == null) {
 			throw new Unauthorized("bug, user not found, corrupt session");
 		}
-		
 		UserDbo user = JPA.em().find(UserDbo.class, ref.getValue());
 		return user;
 	}
@@ -42,14 +39,12 @@ public class Utility {
 	public static void sendEmail(String emailId, String company,String key) {
 		SimpleEmail email = new SimpleEmail();
 		String mode = Play.configuration.getProperty("application.mode");
-		// TBD to change the URl
 		String signupUrl = "null";
 		if ("dev".equals(mode)) {
 			signupUrl = Play.configuration.getProperty("dev.signupUrl");
 
 		} else {
 			signupUrl = Play.configuration.getProperty("prod.signupUrl");
-
 		}
 		try {
 			email.setFrom("no-reply@tbd.com");
@@ -63,23 +58,7 @@ public class Utility {
 			log.error("ERROR in sending mail to " + emailId);
 			e.printStackTrace();
 		}
-		
-
-/*		//An HTML e-mail code snippet to be used later if required:
- 
-		HtmlEmail email = new HtmlEmail();
-		email.addTo("info@lunatech.com");
-		email.setFrom(sender@lunatech.com", "Nicolas");
-		email.setSubject("Test email with inline image");
-		// embed the image and get the content id
-		URL url = new URL("http://www.zenexity.fr/wp-content/themes/images/logo.png");
-		String cid = email.embed(url, "Zenexity logo");
-		// set the html message
-		email.setHtmlMsg("<html>Zenexity logo - <img src=\"cid:"+cid+"\"></html>");
-		// set the alternative message
-		email.setTextMsg("Your email client does not support HTML, too bad :(");
-		*/
-		
+	
 	}
 
 	public static void sendEmailForApproval(String emailId, String company, String employee) {

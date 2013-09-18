@@ -1,35 +1,35 @@
 package models;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import play.db.jpa.GenericModel;
-
-
-
+import play.db.jpa.Model;
 
 @Entity
-public class EmailToUserDbo extends GenericModel{
+public class EmailToUserDbo{
 
-	@Id
-	private String id;
+
+    @Id
+    private String email;
 	
-	private String value;
-
-	public String getId() {
-		return id;
+	public String getEmail() {
+		return email;
 	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
+	public void setEmail(String email) {
+		this.email = email;
+	} 
 
-	public String getValue() {
+	private int value;
+
+	public int getValue() {
 		return value;
 	}
 
-	public void setValue(String value) {
+	public void setValue(int value) {
 		this.value = value;
 	}
+
 	
 }

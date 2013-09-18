@@ -15,12 +15,17 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+
 import models.DayCardDbo;
 import models.EmailToUserDbo;
 import models.StatusEnum;
-import models.Token;
-import models.UserDbo;
 import models.TimeCardDbo;
+import models.Token;
+
+
+import models.UserDbo;
+
 import models.CompanyDbo;
 
 import controllers.auth.Check;
@@ -50,7 +55,8 @@ public class OtherStuff extends Controller {
 		log.info("User = " + user +" and Company = " + company);
 		List<UserDbo> employees = user.getEmployees();
 		List<TimeCardDbo> timeCards = user.getTimecards();
-		render(user, company, employees, timeCards);
+	    render(user, company, employees, timeCards);
+		
 	}
 
 
@@ -83,8 +89,7 @@ public class OtherStuff extends Controller {
 		company.setPhoneNumber(phone);
 		company.setDescription(detail);
 		company.addUser(user);
-		
-		user.setCompany(company);
+	    user.setCompany(company);
 		
 		JPA.em().persist(company);
 		JPA.em().persist(user);
@@ -107,7 +112,6 @@ public class OtherStuff extends Controller {
 		log.info("Adding users by Admin = " + admin.getEmail()
 				+ " and Company = " + company.getName());
 		List<UserDbo> users = company.getUsers();
-
 		render(admin, company, users);
 	}
 
@@ -147,7 +151,7 @@ public class OtherStuff extends Controller {
 		JPA.em().persist(user);
 
 		EmailToUserDbo emailToUser = new EmailToUserDbo();
-		emailToUser.setId(useremail);
+		emailToUser.setEmail(useremail);
 		emailToUser.setValue(user.getId());
 		JPA.em().persist(emailToUser);
 
@@ -208,7 +212,7 @@ public class OtherStuff extends Controller {
 		}
 	}
 
-	public static void detailEmployee(String id) {
+	public static void detailEmployee(Integer id) {
 		TimeCardDbo timeCard = JPA.em().find(TimeCardDbo.class, id);
 		StatusEnum status = timeCard.getStatus();
 		boolean readOnly;
@@ -316,20 +320,20 @@ public class OtherStuff extends Controller {
 		JPA.em().flush();
 
 		timeCardDbo.setNumberOfHours(totalhours);
-		// timeCardDbo.setDetail(detail);
+     //  timeCardDbo.setDetail(detail);
 		timeCardDbo.setApproved(false);
 		timeCardDbo.setStatus(StatusEnum.SUBMIT);
 		user.addTimecards(timeCardDbo);
 		JPA.em().persist(timeCardDbo);
 		JPA.em().persist(user);
 		JPA.em().flush();
-		Utility.sendEmailForApproval(manager.getEmail(), company.getName(), user.getEmail());
+	    Utility.sendEmailForApproval(manager.getEmail(), company.getName(), user.getEmail());
 		employee();
 	}
 	
 	
-	public static void updateTimeAddition(String timeCardId,
-			String[] dayCardsid, int[] noofhours, String[] details) {
+	public static void updateTimeAddition(Integer timeCardId,
+			Integer[] dayCardsid, int[] noofhours, String[] details) {
 		TimeCardDbo timeCard = JPA.em().find(TimeCardDbo.class, timeCardId);
 		int sum = 0;
 		for (int i = 0; i < 7; i++) {
@@ -359,7 +363,7 @@ public class OtherStuff extends Controller {
 
 	}
 
-	public static void detail(String id) {
+	public static void detail(Integer id) {
 		TimeCardDbo timeCard = JPA.em().find(TimeCardDbo.class, id);
 		List<DayCardDbo> dayCardDbo = timeCard.getDaycards();
 		StatusEnum status = timeCard.getStatus();
@@ -373,7 +377,7 @@ public class OtherStuff extends Controller {
 		render(email, timeCards);
 	}
 
-	public static void cardsAction(String timeCardId, int status) {
+	public static void cardsAction(Integer timeCardId, int status) {
 
 		TimeCardDbo ref = JPA.em().find(TimeCardDbo.class, timeCardId);
 		if (ref != null) {
