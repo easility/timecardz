@@ -39,10 +39,11 @@ public class Utility {
 	public static void sendEmail(String emailId, String company,String key) {
 		SimpleEmail email = new SimpleEmail();
 		String mode = Play.configuration.getProperty("application.mode");
+		String port = Play.configuration.getProperty("http.port");
 		String signupUrl = "null";
 		if ("dev".equals(mode)) {
 			signupUrl = Play.configuration.getProperty("dev.signupUrl");
-
+			signupUrl = signupUrl + ":" + port + "/";
 		} else {
 			signupUrl = Play.configuration.getProperty("prod.signupUrl");
 		}
