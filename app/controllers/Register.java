@@ -44,8 +44,6 @@ public class Register extends Controller {
 		user.setManager(user);
 		user.setAdmin(true);
 		JPA.em().persist(user);
-		System.out.println("hhjjjadsgdddddddddd");
-		System.out.println("userid:" + user.getId());
 		EmailToUserDbo emailToUser = new EmailToUserDbo();
 		emailToUser.setEmail(email);
 		emailToUser.setValue(user.getId());
