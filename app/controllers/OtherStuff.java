@@ -15,14 +15,11 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 import models.DayCardDbo;
 import models.EmailToUserDbo;
 import models.StatusEnum;
 import models.TimeCardDbo;
 import models.Token;
-
 
 import models.UserDbo;
 
@@ -47,18 +44,17 @@ public class OtherStuff extends Controller {
 
 	public static void company() {
 		UserDbo user = Utility.fetchUser();
-		if(user!=null && !user.isAdmin()) {
-			validation.addError("Access", "Oops, you do not have access to this page");
+		if (user != null && !user.isAdmin()) {
+			validation.addError("Access",
+					"Oops, you do not have access to this page");
 			dashboard();
 		}
 		CompanyDbo company = user.getCompany();
-		log.info("User = " + user +" and Company = " + company);
+		log.info("User = " + user + " and Company = " + company);
 		List<UserDbo> employees = user.getEmployees();
 		List<TimeCardDbo> timeCards = user.getTimecards();
-	    render(user, company, employees, timeCards);
-		
+		render(user, company, employees, timeCards);
 	}
-
 
 	public static void addCompany() {
 		render();
@@ -67,21 +63,22 @@ public class OtherStuff extends Controller {
 	public static void companyDetails() {
 		UserDbo user = Utility.fetchUser();
 		CompanyDbo company = user.getCompany();
-		log.info("User = " + user.getEmail() +" and Company = " + company);
+		log.info("User = " + user.getEmail() + " and Company = " + company);
 		List<UserDbo> users = null;
 		if (company != null)
 			users = company.getUsers();
 		render(user, company, users);
 	}
 
-	public static void postAddition(String name, String address, String phone, String detail) throws Throwable {
+	public static void postAddition(String name, String address, String phone,
+			String detail) throws Throwable {
 		validation.required(name);
 		UserDbo user = Utility.fetchUser();
-	
-		if(validation.hasErrors()) {
+
+		if (validation.hasErrors()) {
 			params.flash(); // add http parameters to the flash scope
-	        validation.keep(); // keep the errors for the next request
-	        addCompany();
+			validation.keep(); // keep the errors for the next request
+			addCompany();
 		}
 		CompanyDbo company = new CompanyDbo();
 		company.setName(name);
@@ -89,23 +86,21 @@ public class OtherStuff extends Controller {
 		company.setPhoneNumber(phone);
 		company.setDescription(detail);
 		company.addUser(user);
-	    user.setCompany(company);
-		
+		user.setCompany(company);
 		JPA.em().persist(company);
 		JPA.em().persist(user);
-		
 		JPA.em().flush();
 		company();
 	}
 
 	public static void dashboard() {
 		UserDbo user = Utility.fetchUser();
-		if (user!=null && user.isAdmin())
+		if (user != null && user.isAdmin())
 			company();
 		else
 			employee();
 	}
-	
+
 	public static void addUser() {
 		UserDbo admin = Utility.fetchUser();
 		CompanyDbo company = admin.getCompany();
@@ -122,8 +117,8 @@ public class OtherStuff extends Controller {
 		if (!useremail.contains("@"))
 			validation.addError("useremail", "This is not a valid email");
 
-		EmailToUserDbo existing = JPA.em().find(EmailToUserDbo.class,
-				useremail);
+		EmailToUserDbo existing = JPA.em()
+				.find(EmailToUserDbo.class, useremail);
 		if (existing != null) {
 			validation.addError("useremail", "This email already exists");
 		}
@@ -172,13 +167,18 @@ public class OtherStuff extends Controller {
 		companyDetails();
 	}
 
-	public static void rename(String useremail,String firstmanager,String manager){
+	public static void rename(String useremail, String firstmanager,
+			String manager) {
 
-		EmailToUserDbo oldManagerRef = JPA.em().find(EmailToUserDbo.class, firstmanager);
-		UserDbo oldManager = JPA.em().find(UserDbo.class, oldManagerRef.getValue());
+		EmailToUserDbo oldManagerRef = JPA.em().find(EmailToUserDbo.class,
+				firstmanager);
+		UserDbo oldManager = JPA.em().find(UserDbo.class,
+				oldManagerRef.getValue());
 
-		EmailToUserDbo newManagerRef = JPA.em().find(EmailToUserDbo.class, manager);
-		UserDbo newManager = JPA.em().find(UserDbo.class, newManagerRef.getValue());
+		EmailToUserDbo newManagerRef = JPA.em().find(EmailToUserDbo.class,
+				manager);
+		UserDbo newManager = JPA.em().find(UserDbo.class,
+				newManagerRef.getValue());
 
 		EmailToUserDbo empRef = JPA.em().find(EmailToUserDbo.class, useremail);
 		UserDbo emp = JPA.em().find(UserDbo.class, empRef.getValue());
@@ -200,13 +200,14 @@ public class OtherStuff extends Controller {
 	public static void employee() {
 		UserDbo employee = Utility.fetchUser();
 		List<UserDbo> employees = employee.getEmployees();
-		String email=employee.getEmail();
+		String email = employee.getEmail();
 		if (employees != null && employees.size() == 0) {
-			// Employee is either only employee or a manager with no employee under him
+			// Employee is either only employee or a manager with no employee
+			// under him
 			// so render his timecards only
 			LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
 			List<TimeCardDbo> timeCards = employee.getTimecards();
-			render(timeCards,beginOfWeek,email);
+			render(timeCards, beginOfWeek, email);
 		} else {
 			manager();
 		}
@@ -233,13 +234,12 @@ public class OtherStuff extends Controller {
 	}
 
 	public static void manager() {
-		//Manager can have his own timecards to submit to admin
+		// Manager can have his own timecards to submit to admin
 		UserDbo manager = Utility.fetchUser();
 		List<UserDbo> employees = manager.getEmployees();
 		List<TimeCardDbo> timeCards = manager.getTimecards();
 		render(employees, timeCards);
 	}
-	
 
 	public static void addTime() {
 		UserDbo employee = Utility.fetchUser();
@@ -284,11 +284,13 @@ public class OtherStuff extends Controller {
 
 		JPA.em().flush();
 
-		Utility.sendEmailForApproval(manager.getEmail(), company.getName(), user.getEmail());
+		Utility.sendEmailForApproval(manager.getEmail(), company.getName(),
+				user.getEmail());
 		employee();
 	}
 
-	public static void postTimeAddition2(int[] noofhours, String[] details) throws Throwable {
+	public static void postTimeAddition2(int[] noofhours, String[] details)
+			throws Throwable {
 		UserDbo user = Utility.fetchUser();
 		CompanyDbo company = user.getCompany();
 		UserDbo manager = user.getManager();
@@ -300,7 +302,7 @@ public class OtherStuff extends Controller {
 		for (int i = 0; i < 7; i++) {
 			DayCardDbo dayC = new DayCardDbo();
 			dayC.setDate(beginOfWeek.plusDays(i));
-		//validation.required(noofhours[i]);
+			// validation.required(noofhours[i]);
 			if (noofhours[i] > 12) {
 				validation.addError("noofhours[i]",
 						"hours should be less than 12");
@@ -320,18 +322,18 @@ public class OtherStuff extends Controller {
 		JPA.em().flush();
 
 		timeCardDbo.setNumberOfHours(totalhours);
-     //  timeCardDbo.setDetail(detail);
+		// timeCardDbo.setDetail(detail);
 		timeCardDbo.setApproved(false);
 		timeCardDbo.setStatus(StatusEnum.SUBMIT);
 		user.addTimecards(timeCardDbo);
 		JPA.em().persist(timeCardDbo);
 		JPA.em().persist(user);
 		JPA.em().flush();
-	    Utility.sendEmailForApproval(manager.getEmail(), company.getName(), user.getEmail());
+		Utility.sendEmailForApproval(manager.getEmail(), company.getName(),
+				user.getEmail());
 		employee();
 	}
-	
-	
+
 	public static void updateTimeAddition(Integer timeCardId,
 			Integer[] dayCardsid, int[] noofhours, String[] details) {
 		TimeCardDbo timeCard = JPA.em().find(TimeCardDbo.class, timeCardId);

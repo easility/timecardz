@@ -16,43 +16,42 @@ import org.joda.time.format.DateTimeFormatter;
 
 import play.db.jpa.Model;
 
-
-
 @Entity
 public class DayCardDbo {
 
-	 private static DateTimeFormatter fmt = DateTimeFormat.forPattern("MMM dd, yyyy");
-    @Id	
+	private static DateTimeFormatter fmt = DateTimeFormat
+			.forPattern("MMM dd, yyyy");
+	@Id
 	@GeneratedValue
-	 private int id;
-		private LocalDate date;
+	private int id;
+	private LocalDate date;
 
-		private int numberOfHours;
+	private int numberOfHours;
 
-		private String detail;
+	private String detail;
 
-		public LocalDate getDate() {
-			return date;
-		}
-
-		public void setDate(LocalDate date) {
-			this.date = date;
-		}
-
-		public int getNumberOfHours() {
-			return numberOfHours;
-		}
-
-		public void setNumberOfHours(int numberOfHours) {
-			this.numberOfHours = numberOfHours;
-		}
-
-		public String getDetail() {
-			return detail;
-		}
-
-		public void setDetail(String detail) {
-			this.detail = detail;
-		}
-
+	public LocalDate getDate() {
+		return date;
 	}
+
+	public void setDate(LocalDate date) {
+		this.date = date;
+	}
+
+	public int getNumberOfHours() {
+		return numberOfHours;
+	}
+
+	public void setNumberOfHours(int numberOfHours) {
+		this.numberOfHours = numberOfHours;
+	}
+
+	public String getDetail() {
+		return detail;
+	}
+
+	public void setDetail(String detail) {
+		this.detail = detail;
+	}
+
+}

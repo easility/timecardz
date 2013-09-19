@@ -18,41 +18,37 @@ import play.db.jpa.Model;
 
 import com.sun.org.apache.xpath.internal.operations.Mod;
 
-
-
 @Entity
 public class TimeCardDbo {
 
-	private static DateTimeFormatter fmt = DateTimeFormat
-			.forPattern("MMM dd, yyyy");
-   @Id
-   @GeneratedValue
-   private int id;
+	private static DateTimeFormatter fmt = DateTimeFormat.forPattern("MMM dd, yyyy");
+	@Id
+	@GeneratedValue
+	private int id;
 	private LocalDate beginOfWeek;
 
 	private int numberOfHours;
-	
+
 	private String detail;
-	
+
 	private boolean approved;
-	
-    @OneToMany
+
+	@OneToMany
 	private List<DayCardDbo> daycards = new ArrayList<DayCardDbo>();
 
 	public List<DayCardDbo> getDaycards() {
-	return daycards;
-}
+		return daycards;
+	}
 
-public void setDaycards(List<DayCardDbo> daycards) {
-	this.daycards = daycards;
-}
+	public void setDaycards(List<DayCardDbo> daycards) {
+		this.daycards = daycards;
+	}
 
-public void setStatus(String status) {
-	this.status = status;
-}
+	public void setStatus(String status) {
+		this.status = status;
+	}
 
 	private String status;
-	
 
 	public void setId(LocalDate beginOfWeek) {
 		this.beginOfWeek = beginOfWeek;
@@ -105,8 +101,7 @@ public void setStatus(String status) {
 		this.status = status.getDbValue();
 	}
 
-	
 	public void addDayCard(DayCardDbo dayCard) {
 		this.daycards.add(dayCard);
 	}
-	}
+}

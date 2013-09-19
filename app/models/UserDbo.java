@@ -36,7 +36,7 @@ public class UserDbo {
 	private String phone;
 
 	private boolean isAdmin;
-	
+
 	@ManyToOne
 	private CompanyDbo company;
 
@@ -53,7 +53,7 @@ public class UserDbo {
 
 	@OneToMany(mappedBy = "manager")
 	private List<UserDbo> employees = new ArrayList<UserDbo>();
-	
+
 	@OneToMany
 	private List<TimeCardDbo> timecards = new ArrayList<TimeCardDbo>();
 
@@ -68,6 +68,7 @@ public class UserDbo {
 	public void setEmployees(List<UserDbo> employees) {
 		this.employees = employees;
 	}
+
 	public void addEmployee(UserDbo employee) {
 		this.employees.add(employee);
 	}
@@ -143,6 +144,7 @@ public class UserDbo {
 	public void setAdmin(boolean isAdmin) {
 		this.isAdmin = isAdmin;
 	}
+
 	public void addTimecards(TimeCardDbo timecard) {
 		this.timecards.add(timecard);
 	}

@@ -26,7 +26,7 @@ public class CompanyDbo {
 	private String address;
 
 	private String name;
-	 
+
 	private String description;
 
 	public int getKey() {
@@ -36,6 +36,7 @@ public class CompanyDbo {
 	public void setKey(int key) {
 		this.key = key;
 	}
+
 	public String getName() {
 		return name;
 	}
@@ -43,6 +44,7 @@ public class CompanyDbo {
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public List<UserDbo> getUsers() {
 		return users;
 	}
@@ -58,6 +60,7 @@ public class CompanyDbo {
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
+
 	public String getPhoneNumber() {
 		return phoneNumber;
 	}

@@ -7,19 +7,18 @@ import javax.persistence.Id;
 import play.db.jpa.Model;
 
 @Entity
-public class EmailToUserDbo{
+public class EmailToUserDbo {
 
+	@Id
+	private String email;
 
-    @Id
-    private String email;
-	
 	public String getEmail() {
 		return email;
 	}
 
 	public void setEmail(String email) {
 		this.email = email;
-	} 
+	}
 
 	private int value;
 
@@ -31,5 +30,4 @@ public class EmailToUserDbo{
 		this.value = value;
 	}
 
-	
 }

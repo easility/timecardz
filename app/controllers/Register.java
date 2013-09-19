@@ -45,7 +45,7 @@ public class Register extends Controller {
 		user.setAdmin(true);
 		JPA.em().persist(user);
 		System.out.println("hhjjjadsgdddddddddd");
-        System.out.println("userid:"+user.getId());
+		System.out.println("userid:" + user.getId());
 		EmailToUserDbo emailToUser = new EmailToUserDbo();
 		emailToUser.setEmail(email);
 		emailToUser.setValue(user.getId());
@@ -68,8 +68,7 @@ public class Register extends Controller {
 		long interval = logintime - sendmailtime;
 		validation.required(interval);
 		if (interval > duration) {
-			validation.addError("interval",
-					"Plese request the admin to send the message again");
+			validation.addError("interval","Plese request the admin to send the message again");
 
 		} else {
 			render(email);
@@ -82,7 +81,9 @@ public class Register extends Controller {
 	}
 
 	// This for employees who has recieved the mail
-	public static void postUserRegister(String email, String password, String verifyPassword, String firstName, String lastName, String phone) {
+	public static void postUserRegister(String email, String password,
+			String verifyPassword, String firstName, String lastName,
+			String phone) {
 		validation.required(email);
 		if (password == null) {
 			validation.addError("password", "Password must be supplied");
@@ -95,7 +96,8 @@ public class Register extends Controller {
 
 		EmailToUserDbo existing = JPA.em().find(EmailToUserDbo.class, email);
 		if (existing == null) {
-			validation.addError("email", "This email is not registered with us");
+			validation
+					.addError("email", "This email is not registered with us");
 		}
 
 		if (validation.hasErrors()) {
@@ -112,7 +114,7 @@ public class Register extends Controller {
 		user.setAdmin(false);
 		JPA.em().persist(user);
 
-		EmailToUserDbo ref = JPA.em().find(EmailToUserDbo.class, user.getManager().getEmail());
+		EmailToUserDbo ref = JPA.em().find(EmailToUserDbo.class,user.getManager().getEmail());
 		UserDbo manager = JPA.em().find(UserDbo.class, ref.getValue());
 		manager.addEmployee(user);
 		JPA.em().persist(manager);
