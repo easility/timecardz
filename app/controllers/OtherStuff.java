@@ -169,8 +169,7 @@ public class OtherStuff extends Controller {
 		companyDetails();
 	}
 
-	public static void rename(String useremail, String firstmanager,
-			String manager) {
+	public static void rename(String useremail, String firstmanager,String manager) {
 
 		EmailToUserDbo oldManagerRef = JPA.em().find(EmailToUserDbo.class,
 				firstmanager);
@@ -203,6 +202,7 @@ public class OtherStuff extends Controller {
 		if (id == null) {
 			UserDbo employee = Utility.fetchUser();
 			List<UserDbo> employees = employee.getEmployees();
+			List<TimeCardDbo> timeCards = employee.getTimecards();
 			String email = employee.getEmail();
 			LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
 			DateTimeFormatter fmt = DateTimeFormat.forPattern("MMM dd");
@@ -216,20 +216,13 @@ public class OtherStuff extends Controller {
 				dayCards[i] = new DayCardDbo();
 				dayCards[i].setDate(beginOfWeek.plusDays(i));
 			}
-			if (employees != null && employees.size() == 0) {
-				LocalDate beginOfWeek1 = Utility.calculateBeginningOfTheWeek();
-				List<TimeCardDbo> timeCards = employee.getTimecards();
-				render(timeCards, beginOfWeek, email, currentWeek, employee,
-						beginOfWeek, dayCards, noofhours, details);
-			} else {
-				manager();
-			}
-		}
-		else{
+			render(timeCards, beginOfWeek, email, currentWeek, employee, dayCards, noofhours, details);
+		
+		} else {
 			UserDbo employee = Utility.fetchUser();
 			List<UserDbo> employees = employee.getEmployees();
 			List<TimeCardDbo> timeCards = employee.getTimecards();
-			String view="view";
+			String view = "view";
 			TimeCardDbo timeCard = JPA.em().find(TimeCardDbo.class, id);
 			StatusEnum status = timeCard.getStatus();
 			boolean readOnly;
@@ -246,7 +239,8 @@ public class OtherStuff extends Controller {
 				details[i] = dayCard.getDetail();
 				i++;
 			}
-			render(view,timeCard,timeCards, dayCardDbo, noofhours, details, readOnly, status);
+			render(view, timeCard, timeCards, dayCardDbo, noofhours, details,
+					readOnly, status);
 		}
 	}
 	public static void addTime() {
@@ -266,7 +260,7 @@ public class OtherStuff extends Controller {
 		    render(currentWeek, employee, beginOfWeek, dayCards, noofhours, details);
 		  }
 	
-	public static void manager() {
+	/*public static void manager() {
 		// Manager can have his own timecards to submit to admin
 		UserDbo manager = Utility.fetchUser();
 		LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
@@ -274,7 +268,7 @@ public class OtherStuff extends Controller {
 		List<TimeCardDbo> timeCards = manager.getTimecards();
 		render(employees, timeCards,beginOfWeek);
 		
-	}
+	}*/
 
 	public static void postTimeAddition(int totaltime, String detail)
 			throws Throwable {
