@@ -13,12 +13,12 @@ GET     /pricing                                  Application.pricing
 
 
 GET     /admindashboard                         OtherStuff.company
+GET     /addtime                                OtherStuff.addTime
 GET     /addcompany                             OtherStuff.addCompany
 GET     /companydetails                         OtherStuff.companyDetails
 GET     /adduser                         		OtherStuff.addUser
 GET     /dashboard								OtherStuff.dashboard
 GET     /employee							    OtherStuff.employee
-GET     /managerdashboard						OtherStuff.manager
 GET     /usercards								OtherStuff.userCards
 GET     /detail/{timeCard}					    OtherStuff.detail
 GET     /detailEmployee/{timeCard}	            OtherStuff.detailEmployee 

@@ -50,10 +50,11 @@ public class OtherStuff extends Controller {
 			dashboard();
 		}
 		CompanyDbo company = user.getCompany();
+		LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
 		log.info("User = " + user + " and Company = " + company);
 		List<UserDbo> employees = user.getEmployees();
 		List<TimeCardDbo> timeCards = user.getTimecards();
-		render(user, company, employees, timeCards);
+		render(user, company, employees, timeCards,beginOfWeek);
 	}
 
 	public static void addCompany() {
@@ -248,13 +249,31 @@ public class OtherStuff extends Controller {
 			render(view,timeCard,timeCards, dayCardDbo, noofhours, details, readOnly, status);
 		}
 	}
-
+	public static void addTime() {
+		    UserDbo employee = Utility.fetchUser();
+		    LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
+		    DateTimeFormatter fmt = DateTimeFormat.forPattern("MMM dd");
+		    String currentWeek = fmt.print(beginOfWeek);
+		   DayCardDbo[] dayCards = new DayCardDbo[7];
+		    int[] noofhours = new int[7];
+		    String[] details = new String[7];
+		    for (int i = 0; i < 7; i++) {
+		      noofhours[i] = 0;
+		      details[i] = "";
+		      dayCards[i] = new DayCardDbo();
+		      dayCards[i].setDate(beginOfWeek.plusDays(i));
+		    }
+		    render(currentWeek, employee, beginOfWeek, dayCards, noofhours, details);
+		  }
+	
 	public static void manager() {
 		// Manager can have his own timecards to submit to admin
 		UserDbo manager = Utility.fetchUser();
+		LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
 		List<UserDbo> employees = manager.getEmployees();
 		List<TimeCardDbo> timeCards = manager.getTimecards();
-		render(employees, timeCards);
+		render(employees, timeCards,beginOfWeek);
+		
 	}
 
 	public static void postTimeAddition(int totaltime, String detail)
@@ -396,7 +415,7 @@ public class OtherStuff extends Controller {
 		}
 		JPA.em().persist(ref);
 		JPA.em().flush();
-		manager();
+		company();
 	}
 
 	public static void success() {

@@ -3,7 +3,7 @@
 <div class="container">
 <h3>My Company</h3>
 </div>
-
+ 
     #{if company == null}
        					<a href="/addcompany"><span style="color: blue;">Register a new Company</span></a>
     #{/if}
@@ -65,20 +65,24 @@
 			</tbody>
 		</table>
 	#{/else}
-
+#{if company != null}
 <div class="container">
-<h3>Time Cards</h3>
+<h3>My Time Cards</h3>
 </div>
-    #{ifnot timeCards}
+	
+      	 #{ifnot timeCards}
        	<a href="/addtime"><span style="color: blue;">Add a new Time Card</span></a>
-    #{/ifnot}
+      
+     #{/ifnot}
+    
     #{else}
 		<table class="table table-striped table-bordered table-condensed">
 			<thead>
 			    <tr>
 		            <th>Week</th> 
 		            <th>No. of Hours</th>
-		            <th>Remark</th>
+		            <th>Ststus</th>
+		            <th>edit</th>
 			    </tr>
 			</thead>
 			<tbody>
@@ -86,22 +90,35 @@
 	       		  <tr>
 	          		  <td>
 	       				${timeCard.beginOfWeek}
+	       				
 	      		      </td>
 			          <td>
 	            		${timeCard.numberOfHours}
 			          </td>
 			          <td>
-						${timeCard.detail}
+			           #{if timeCard.status == models.StatusEnum.APPROVED}  <button class="btn btn-success btn-mini disabled"><i class="fam-accept"></i>${timeCard.status} </button>  #{/if}
+					    #{if timeCard.status == models.StatusEnum.CANCELLED} <button class="btn btn-danger btn-mini disabled"><i class="fam-accept"></i>${timeCard.status} </button>#{/if}
+						 #{if timeCard.status == models.StatusEnum.SUBMIT}<button class="btn btn-primary btn-mini disabled"><i class="fam-accept"></i>${timeCard.status} </button> #{/if}	
+			          </td>
+			          <td> 
+			           #{if timeCard.status == models.StatusEnum.APPROVED}  <a class="btn1" href="@{OtherStuff.employee(timeCard.id)}">view</a>#{/if}
+			          #{if timeCard.status == models.StatusEnum.CANCELLED} <a class="btn1" href="@{OtherStuff.employee(timeCard.id)}">edit and submit</a>#{/if}
+			         #{if timeCard.status == models.StatusEnum.SUBMIT}   <a class="btn1" href="@{OtherStuff.employee(timeCard.id)}">view and update</a>#{/if}
 			          </td>
 		          </tr>
 		        #{/list} 
 			</tbody>
 		</table>
 		</br>
+		#{if company != null}
+		#{if timeCard.beginOfWeek != beginOfWeek}
+       				 <a href="/addtime"><span style="color: blue;">Add a new Time Card</span></a>
+       		#{/if}		 
+           #{/if}
 		<a href="/addtime"><span style="color: blue;">Add a new Time Card</span></a>
+		
 	#{/else}
-	
-
+	  #{/if}
 
 
 
