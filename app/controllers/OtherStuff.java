@@ -199,13 +199,13 @@ public class OtherStuff extends Controller {
 	}
 
 	public static void employee(Integer id) {
+		UserDbo employee = Utility.fetchUser();
+		List<UserDbo> employees = employee.getEmployees();
+		List<TimeCardDbo> timeCards = employee.getTimecards();
+		LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
+		DateTimeFormatter fmt = DateTimeFormat.forPattern("MMM dd");
 		if (id == null) {
-			UserDbo employee = Utility.fetchUser();
-			List<UserDbo> employees = employee.getEmployees();
-			List<TimeCardDbo> timeCards = employee.getTimecards();
 			String email = employee.getEmail();
-			LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
-			DateTimeFormatter fmt = DateTimeFormat.forPattern("MMM dd");
 			String currentWeek = fmt.print(beginOfWeek);
 			DayCardDbo[] dayCards = new DayCardDbo[7];
 			int[] noofhours = new int[7];
@@ -219,9 +219,6 @@ public class OtherStuff extends Controller {
 			render(timeCards, beginOfWeek, email, currentWeek, employee, dayCards, noofhours, details);
 		
 		} else {
-			UserDbo employee = Utility.fetchUser();
-			List<UserDbo> employees = employee.getEmployees();
-			List<TimeCardDbo> timeCards = employee.getTimecards();
 			String view = "view";
 			TimeCardDbo timeCard = JPA.em().find(TimeCardDbo.class, id);
 			StatusEnum status = timeCard.getStatus();
@@ -243,141 +240,77 @@ public class OtherStuff extends Controller {
 					readOnly, status);
 		}
 	}
-	public static void addTime() {
-		    UserDbo employee = Utility.fetchUser();
-		    LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
-		    DateTimeFormatter fmt = DateTimeFormat.forPattern("MMM dd");
-		    String currentWeek = fmt.print(beginOfWeek);
-		   DayCardDbo[] dayCards = new DayCardDbo[7];
-		    int[] noofhours = new int[7];
-		    String[] details = new String[7];
-		    for (int i = 0; i < 7; i++) {
-		      noofhours[i] = 0;
-		      details[i] = "";
-		      dayCards[i] = new DayCardDbo();
-		      dayCards[i].setDate(beginOfWeek.plusDays(i));
-		    }
-		    render(currentWeek, employee, beginOfWeek, dayCards, noofhours, details);
-		  }
-	
-	/*public static void manager() {
-		// Manager can have his own timecards to submit to admin
-		UserDbo manager = Utility.fetchUser();
-		LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
-		List<UserDbo> employees = manager.getEmployees();
-		List<TimeCardDbo> timeCards = manager.getTimecards();
-		render(employees, timeCards,beginOfWeek);
-		
-	}*/
 
-	public static void postTimeAddition(int totaltime, String detail)
-			throws Throwable {
+	public static void postTimeAddition2(Integer timeCardId,Integer[] dayCardsid, int[] noofhours, String[] details) throws Throwable {
 		Integer id = null;
-		validation.required(totaltime);
-
-		if (validation.hasErrors()) {
-			params.flash(); // add http parameters to the flash scope
-			validation.keep(); // keep the errors for the next request
-			//addTime();
-			employee(id);
-		}
-
-		UserDbo user = Utility.fetchUser();
-		CompanyDbo company = user.getCompany();
-		UserDbo manager = user.getManager();
-
-		TimeCardDbo timeCardDbo = new TimeCardDbo();
-		timeCardDbo.setBeginOfWeek(Utility.calculateBeginningOfTheWeek());
-		timeCardDbo.setNumberOfHours(totaltime);
-		timeCardDbo.setDetail(detail);
-		timeCardDbo.setApproved(false);
-		timeCardDbo.setStatus(StatusEnum.SUBMIT);
-		user.addTimecards(timeCardDbo);
-		JPA.em().persist(timeCardDbo);
-		JPA.em().persist(user);
-
-		JPA.em().flush();
-
-		Utility.sendEmailForApproval(manager.getEmail(), company.getName(),
-				user.getEmail());
-		employee(id);
-	}
-
-	public static void postTimeAddition2(int[] noofhours, String[] details)
-			throws Throwable {
-		Integer id =null;
-		UserDbo user = Utility.fetchUser();
-		CompanyDbo company = user.getCompany();
-		UserDbo manager = user.getManager();
-
-		TimeCardDbo timeCardDbo = new TimeCardDbo();
-		timeCardDbo.setBeginOfWeek(Utility.calculateBeginningOfTheWeek());
-		LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
-		int totalhours = 0;
-		for (int i = 0; i < 7; i++) {
-			DayCardDbo dayC = new DayCardDbo();
-			dayC.setDate(beginOfWeek.plusDays(i));
-			// validation.required(noofhours[i]);
-			if (noofhours[i] > 12) {
-				validation.addError("noofhours[i]",
-						"hours should be less than 12");
-			} else {
-				dayC.setNumberOfHours(noofhours[i]);
-				totalhours = totalhours + noofhours[i];
-				dayC.setDetail(details[i]);
-				timeCardDbo.addDayCard(dayC);
-				JPA.em().persist(dayC);
-			}
-		}
-		if (validation.hasErrors()) {
-			params.flash(); // add http parameters to the flash scope
-			validation.keep(); // keep the errors for the next request
-			employee(id);
-		}
-		JPA.em().flush();
-
-		timeCardDbo.setNumberOfHours(totalhours);
-		timeCardDbo.setApproved(false);
-		timeCardDbo.setStatus(StatusEnum.SUBMIT);
-		user.addTimecards(timeCardDbo);
-		JPA.em().persist(timeCardDbo);
-		JPA.em().persist(user);
-		JPA.em().flush();
-		Utility.sendEmailForApproval(manager.getEmail(), company.getName(),
-				user.getEmail());
-		employee(id);
-	}
-
-	public static void updateTimeAddition(Integer timeCardId,
-			Integer[] dayCardsid, int[] noofhours, String[] details) {
-		Integer id =null;
-		TimeCardDbo timeCard = JPA.em().find(TimeCardDbo.class, timeCardId);
-		int sum = 0;
-		for (int i = 0; i < 7; i++) {
-			DayCardDbo dayC = JPA.em().find(DayCardDbo.class, dayCardsid[i]);
-			if (noofhours[i] > 12) {
-				validation.addError("noofhours[i]",
-						"hours should be less than 12");
-			} else {
-				dayC.setNumberOfHours(noofhours[i]);
-				dayC.setDetail(details[i]);
-				JPA.em().persist(dayC);
-
-				sum += noofhours[i];
+		if (timeCardId == null || dayCardsid == null) {
+			UserDbo user = Utility.fetchUser();
+			CompanyDbo company = user.getCompany();
+			UserDbo manager = user.getManager();
+			TimeCardDbo timeCardDbo = new TimeCardDbo();
+			timeCardDbo.setBeginOfWeek(Utility.calculateBeginningOfTheWeek());
+			LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
+			int totalhours = 0;
+			for (int i = 0; i < 7; i++) {
+				DayCardDbo dayC = new DayCardDbo();
+				dayC.setDate(beginOfWeek.plusDays(i));
+				if (noofhours[i] > 12) {
+					validation.addError("noofhours[i]",
+							"hours should be less than 12");
+				} else {
+					dayC.setNumberOfHours(noofhours[i]);
+					totalhours = totalhours + noofhours[i];
+					dayC.setDetail(details[i]);
+					timeCardDbo.addDayCard(dayC);
+					JPA.em().persist(dayC);
+				}
 			}
 			if (validation.hasErrors()) {
 				params.flash(); // add http parameters to the flash scope
 				validation.keep(); // keep the errors for the next request
 				employee(id);
 			}
+			JPA.em().flush();
 
+			timeCardDbo.setNumberOfHours(totalhours);
+			timeCardDbo.setApproved(false);
+			timeCardDbo.setStatus(StatusEnum.SUBMIT);
+			user.addTimecards(timeCardDbo);
+			JPA.em().persist(timeCardDbo);
+			JPA.em().persist(user);
+			JPA.em().flush();
+			Utility.sendEmailForApproval(manager.getEmail(), company.getName(),
+					user.getEmail());
+			employee(id);
+		} else {
+			TimeCardDbo timeCard = JPA.em().find(TimeCardDbo.class, timeCardId);
+			int sum = 0;
+			for (int i = 0; i < 7; i++) {
+				DayCardDbo dayC = JPA.em()
+						.find(DayCardDbo.class, dayCardsid[i]);
+				if (noofhours[i] > 12) {
+					validation.addError("noofhours[i]",
+							"hours should be less than 12");
+				} else {
+					dayC.setNumberOfHours(noofhours[i]);
+					dayC.setDetail(details[i]);
+					JPA.em().persist(dayC);
+
+					sum += noofhours[i];
+				}
+				if (validation.hasErrors()) {
+					params.flash();
+					validation.keep();
+					employee(id);
+				}
+
+			}
+			timeCard.setNumberOfHours(sum);
+			timeCard.setStatus(StatusEnum.SUBMIT);
+			JPA.em().persist(timeCard);
+			JPA.em().flush();
+			employee(id);
 		}
-		timeCard.setNumberOfHours(sum);
-		timeCard.setStatus(StatusEnum.SUBMIT);
-		JPA.em().persist(timeCard);
-		JPA.em().flush();
-		employee(id);
-
 	}
 
 	public static void detail(Integer id) {

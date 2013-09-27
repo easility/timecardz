@@ -13,7 +13,6 @@ GET     /pricing                                  Application.pricing
 
 
 GET     /admindashboard                         OtherStuff.company
-GET     /addtime                                OtherStuff.addTime
 GET     /addcompany                             OtherStuff.addCompany
 GET     /companydetails                         OtherStuff.companyDetails
 GET     /adduser                         		OtherStuff.addUser
