@@ -24,6 +24,8 @@ GET     /detailEmployee/{timeCard}	            OtherStuff.detailEmployee
 GET     /usersignup                        		Register.userRegister
 GET     /usersignup2/{token}                    Register.userRegister2
 
+GET     /ourpattern                    			OurPattern.pattern
+
 # Ignore favicon requests
 GET     /favicon.ico                            404
 
