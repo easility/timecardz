@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import models.DayCardDbo;
 import models.EmailToUserDbo;
-import models.EntityDbo;
 import models.StatusEnum;
 import models.TimeCardDbo;
 import models.Token;
@@ -41,46 +40,50 @@ import play.mvc.Scope.Session;
 public class OurPattern extends Controller {
 
 	private static final Logger log = LoggerFactory.getLogger(OurPattern.class);
-
+	public static String useremail = "sampleuser@email.com"; 
 	public static int createSampleData() {
-        UserDbo user = new UserDbo();
-        String useremail = "sampleuser@email.com"; 
+        UserDbo user = new UserDbo();  
         user.setEmail(useremail);
         user.setPassword("password");
         user.setFirstName("firstName");
         user.setLastName("lastName");
         user.setPhone("1111");
         user.setAdmin(false);
-
-        JPA.em().persist(user);
-
-        EmailToUserDbo emailToUser = new EmailToUserDbo();
-        emailToUser.setEmail(useremail);
-        emailToUser.setValue(user.getId());
-        JPA.em().persist(emailToUser);
-
-        JPA.em().flush();
         
-        TimeCardDbo timeCardDbo = new TimeCardDbo();
-        timeCardDbo.setBeginOfWeek(Utility.calculateBeginningOfTheWeek());
-        LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
-        int totalhours = 0;
-        for (int i = 0; i < 7; i++) {
-              DayCardDbo dayC = new DayCardDbo();
-              dayC.setDate(beginOfWeek.plusDays(i));
-              dayC.setNumberOfHours(5);
-              totalhours = totalhours + 5;
-              dayC.setDetail("some details");
-              timeCardDbo.addDayCard(dayC);
-              JPA.em().persist(dayC);
-            }
+        EmailToUserDbo user1 = JPA.em().find(EmailToUserDbo.class, useremail);
+        if (user1 == null) {
+            JPA.em().persist(user);
+
+            EmailToUserDbo emailToUser = new EmailToUserDbo();
+            emailToUser.setEmail(useremail);
+            emailToUser.setValue(user.getId());
+            JPA.em().persist(emailToUser);
+
             JPA.em().flush();
-            timeCardDbo.setNumberOfHours(totalhours);
-            timeCardDbo.setApproved(false);
-            timeCardDbo.setStatus(StatusEnum.SUBMIT);
-            user.addTimecards(timeCardDbo);
-            JPA.em().persist(timeCardDbo);
-            return user.getId();
+            
+            TimeCardDbo timeCardDbo = new TimeCardDbo();
+            timeCardDbo.setBeginOfWeek(Utility.calculateBeginningOfTheWeek());
+            LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
+            int totalhours = 0;
+            for (int i = 0; i < 7; i++) {
+                  DayCardDbo dayC = new DayCardDbo();
+                  dayC.setDate(beginOfWeek.plusDays(i));
+                  dayC.setNumberOfHours(5);
+                  totalhours = totalhours + 5;
+                  dayC.setDetail("some details");
+                  timeCardDbo.addDayCard(dayC);
+                  JPA.em().persist(dayC);
+                }
+                JPA.em().flush();
+                timeCardDbo.setNumberOfHours(totalhours);
+                timeCardDbo.setApproved(false);
+                timeCardDbo.setStatus(StatusEnum.SUBMIT);
+                user.addTimecards(timeCardDbo);
+                JPA.em().persist(timeCardDbo);
+                return user.getId();  
+        } else 
+            return user1.getValue();
+        
 	}
 	
 	public static void pattern(Integer id) {
@@ -120,13 +123,15 @@ public class OurPattern extends Controller {
 				details[i] = dayCard.getDetail();
 				i++;
 			}
-			render(view, timeCard, dayCardDbo, noofhours, details,
+			render(view, timeCard, dayCardDbo,timeCards, noofhours, details,
 					readOnly, status);
 		}
 	}
 
 	public static void postTimeAddition2(Integer timeCardId,Integer[] dayCardsid, int[] noofhours, String[] details) throws Throwable {
 		Integer id = null;
+		EmailToUserDbo user1 = JPA.em().find(EmailToUserDbo.class, useremail);
+		UserDbo user = JPA.em().find(UserDbo.class, user1.getValue());
 		if (timeCardId == null || dayCardsid == null) {
 			TimeCardDbo timeCardDbo = new TimeCardDbo();
 			timeCardDbo.setBeginOfWeek(Utility.calculateBeginningOfTheWeek());
@@ -156,7 +161,9 @@ public class OurPattern extends Controller {
 			timeCardDbo.setNumberOfHours(totalhours);
 			timeCardDbo.setApproved(false);
 			timeCardDbo.setStatus(StatusEnum.SUBMIT);
-			JPA.em().persist(timeCardDbo);
+			user.addTimecards(timeCardDbo);
+            JPA.em().persist(timeCardDbo);          
+			JPA.em().persist(user);
 			JPA.em().flush();
 			pattern(id);
 		} else {
@@ -184,7 +191,7 @@ public class OurPattern extends Controller {
 			}
 			timeCard.setNumberOfHours(sum);
 			timeCard.setStatus(StatusEnum.SUBMIT);
-			JPA.em().persist(timeCard);
+            JPA.em().persist(timeCard);          
 			JPA.em().flush();
 			pattern(id);
 		}
@@ -211,4 +218,5 @@ public class OurPattern extends Controller {
 	public static void cancel() {
 		render();
 	}
+	
 }
