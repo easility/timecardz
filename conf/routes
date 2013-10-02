@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /                                       Application.index
+GET     /                                         Application.index
 GET		/signin                                   Application.signin
 GET     /signup                                   Application.signup
 GET     /contact                                  Application.contact
@@ -17,8 +17,7 @@ GET     /addcompany                             OtherStuff.addCompany
 GET     /companydetails                         OtherStuff.companyDetails
 GET     /adduser                         		OtherStuff.addUser
 GET     /dashboard								OtherStuff.dashboard
-GET     /addtime								OtherStuff.addTime
-GET     /userdashboard							OtherStuff.employee
+GET     /employee							    OtherStuff.employee
 GET     /managerdashboard						OtherStuff.manager
 GET     /usercards								OtherStuff.userCards
 GET     /detail/{timeCard}					    OtherStuff.detail

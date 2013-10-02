@@ -94,11 +94,12 @@ public class OtherStuff extends Controller {
 	}
 
 	public static void dashboard() {
+		Integer id =null;
 		UserDbo user = Utility.fetchUser();
 		if (user != null && user.isAdmin())
 			company();
 		else
-			employee();
+			employee(id);
 	}
 
 	public static void addUser() {
@@ -197,40 +198,55 @@ public class OtherStuff extends Controller {
 		dashboard();
 	}
 
-	public static void employee() {
-		UserDbo employee = Utility.fetchUser();
-		List<UserDbo> employees = employee.getEmployees();
-		String email = employee.getEmail();
-		if (employees != null && employees.size() == 0) {
-			// Employee is either only employee or a manager with no employee
-			// under him
-			// so render his timecards only
+	public static void employee(Integer id) {
+		if (id == null) {
+			UserDbo employee = Utility.fetchUser();
+			List<UserDbo> employees = employee.getEmployees();
+			String email = employee.getEmail();
 			LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
+			DateTimeFormatter fmt = DateTimeFormat.forPattern("MMM dd");
+			String currentWeek = fmt.print(beginOfWeek);
+			DayCardDbo[] dayCards = new DayCardDbo[7];
+			int[] noofhours = new int[7];
+			String[] details = new String[7];
+			for (int i = 0; i < 7; i++) {
+				noofhours[i] = 0;
+				details[i] = "";
+				dayCards[i] = new DayCardDbo();
+				dayCards[i].setDate(beginOfWeek.plusDays(i));
+			}
+			if (employees != null && employees.size() == 0) {
+				LocalDate beginOfWeek1 = Utility.calculateBeginningOfTheWeek();
+				List<TimeCardDbo> timeCards = employee.getTimecards();
+				render(timeCards, beginOfWeek, email, currentWeek, employee,
+						beginOfWeek, dayCards, noofhours, details);
+			} else {
+				manager();
+			}
+		}
+		else{
+			UserDbo employee = Utility.fetchUser();
+			List<UserDbo> employees = employee.getEmployees();
 			List<TimeCardDbo> timeCards = employee.getTimecards();
-			render(timeCards, beginOfWeek, email);
-		} else {
-			manager();
+			String view="view";
+			TimeCardDbo timeCard = JPA.em().find(TimeCardDbo.class, id);
+			StatusEnum status = timeCard.getStatus();
+			boolean readOnly;
+			if (status == StatusEnum.APPROVED)
+				readOnly = true;
+			else
+				readOnly = false;
+			List<DayCardDbo> dayCardDbo = timeCard.getDaycards();
+			int[] noofhours = new int[7];
+			String[] details = new String[7];
+			int i = 0;
+			for (DayCardDbo dayCard : dayCardDbo) {
+				noofhours[i] = dayCard.getNumberOfHours();
+				details[i] = dayCard.getDetail();
+				i++;
+			}
+			render(view,timeCard,timeCards, dayCardDbo, noofhours, details, readOnly, status);
 		}
-	}
-
-	public static void detailEmployee(Integer id) {
-		TimeCardDbo timeCard = JPA.em().find(TimeCardDbo.class, id);
-		StatusEnum status = timeCard.getStatus();
-		boolean readOnly;
-		if (status == StatusEnum.APPROVED)
-			readOnly = true;
-		else
-			readOnly = false;
-		List<DayCardDbo> dayCardDbo = timeCard.getDaycards();
-		int[] noofhours = new int[7];
-		String[] details = new String[7];
-		int i = 0;
-		for (DayCardDbo dayCard : dayCardDbo) {
-			noofhours[i] = dayCard.getNumberOfHours();
-			details[i] = dayCard.getDetail();
-			i++;
-		}
-		render(timeCard, dayCardDbo, noofhours, details, readOnly, status);
 	}
 
 	public static void manager() {
@@ -241,31 +257,16 @@ public class OtherStuff extends Controller {
 		render(employees, timeCards);
 	}
 
-	public static void addTime() {
-		UserDbo employee = Utility.fetchUser();
-		LocalDate beginOfWeek = Utility.calculateBeginningOfTheWeek();
-		DateTimeFormatter fmt = DateTimeFormat.forPattern("MMM dd");
-		String currentWeek = fmt.print(beginOfWeek);
-		DayCardDbo[] dayCards = new DayCardDbo[7];
-		int[] noofhours = new int[7];
-		String[] details = new String[7];
-		for (int i = 0; i < 7; i++) {
-			noofhours[i] = 0;
-			details[i] = "";
-			dayCards[i] = new DayCardDbo();
-			dayCards[i].setDate(beginOfWeek.plusDays(i));
-		}
-		render(currentWeek, employee, beginOfWeek, dayCards, noofhours, details);
-	}
-
 	public static void postTimeAddition(int totaltime, String detail)
 			throws Throwable {
+		Integer id = null;
 		validation.required(totaltime);
 
 		if (validation.hasErrors()) {
 			params.flash(); // add http parameters to the flash scope
 			validation.keep(); // keep the errors for the next request
-			addTime();
+			//addTime();
+			employee(id);
 		}
 
 		UserDbo user = Utility.fetchUser();
@@ -286,11 +287,12 @@ public class OtherStuff extends Controller {
 
 		Utility.sendEmailForApproval(manager.getEmail(), company.getName(),
 				user.getEmail());
-		employee();
+		employee(id);
 	}
 
 	public static void postTimeAddition2(int[] noofhours, String[] details)
 			throws Throwable {
+		Integer id =null;
 		UserDbo user = Utility.fetchUser();
 		CompanyDbo company = user.getCompany();
 		UserDbo manager = user.getManager();
@@ -317,12 +319,11 @@ public class OtherStuff extends Controller {
 		if (validation.hasErrors()) {
 			params.flash(); // add http parameters to the flash scope
 			validation.keep(); // keep the errors for the next request
-			addTime();
+			employee(id);
 		}
 		JPA.em().flush();
 
 		timeCardDbo.setNumberOfHours(totalhours);
-		// timeCardDbo.setDetail(detail);
 		timeCardDbo.setApproved(false);
 		timeCardDbo.setStatus(StatusEnum.SUBMIT);
 		user.addTimecards(timeCardDbo);
@@ -331,11 +332,12 @@ public class OtherStuff extends Controller {
 		JPA.em().flush();
 		Utility.sendEmailForApproval(manager.getEmail(), company.getName(),
 				user.getEmail());
-		employee();
+		employee(id);
 	}
 
 	public static void updateTimeAddition(Integer timeCardId,
 			Integer[] dayCardsid, int[] noofhours, String[] details) {
+		Integer id =null;
 		TimeCardDbo timeCard = JPA.em().find(TimeCardDbo.class, timeCardId);
 		int sum = 0;
 		for (int i = 0; i < 7; i++) {
@@ -353,7 +355,7 @@ public class OtherStuff extends Controller {
 			if (validation.hasErrors()) {
 				params.flash(); // add http parameters to the flash scope
 				validation.keep(); // keep the errors for the next request
-				addTime();
+				employee(id);
 			}
 
 		}
@@ -361,7 +363,7 @@ public class OtherStuff extends Controller {
 		timeCard.setStatus(StatusEnum.SUBMIT);
 		JPA.em().persist(timeCard);
 		JPA.em().flush();
-		employee();
+		employee(id);
 
 	}
 

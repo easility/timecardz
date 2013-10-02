@@ -48,7 +48,8 @@ public class Utility {
 			signupUrl = Play.configuration.getProperty("prod.signupUrl");
 		}
 		try {
-			email.setFrom("no-reply@tbd.com");
+			String senderId = Play.configuration.getProperty("mail.senderMail"); 
+		    email.setFrom(senderId);
 			email.addTo(emailId);
 			email.setSubject("You are registered for " + company);
 			email.setMsg(" Hi,\n You have been added on www.tbd.com for "+ company + 

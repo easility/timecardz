@@ -82,6 +82,7 @@ public class Register extends Controller {
 	public static void postUserRegister(String email, String password,
 			String verifyPassword, String firstName, String lastName,
 			String phone) {
+		Integer id =null;
 		validation.required(email);
 		if (password == null) {
 			validation.addError("password", "Password must be supplied");
@@ -119,6 +120,6 @@ public class Register extends Controller {
 
 		JPA.em().flush();
 		Secure.addUserToSession(user.getEmail());
-		OtherStuff.employee();
+		OtherStuff.employee(id);
 	}
 }
