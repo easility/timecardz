@@ -21,7 +21,6 @@
 				#{list timeCards, as:'timeCard'}
 	       		  <tr>
 	          		  <td>
-	          		  ${timeCard.id}
 	       			  ${timeCard.beginOfWeek}
 	      		      </td>
 	      		      
@@ -35,7 +34,7 @@
 			          </td>
 			          
 			             <td>
-			       #{if timeCard.status == models.StatusEnum.APPROVED}  <a class="btn1" href="@{OtherStuff.employee(timeCard.id)}">view</a>view </a>#{/if}
+			       #{if timeCard.status == models.StatusEnum.APPROVED}  <a class="btn1" href="@{OtherStuff.employee(timeCard.id)}">view</a>#{/if}
 			       #{if timeCard.status == models.StatusEnum.CANCELLED} <a class="btn1" href="@{OtherStuff.employee(timeCard.id)}">edit and submit</a>#{/if}
 			      #{if timeCard.status == models.StatusEnum.SUBMIT}   <a class="btn1" href="@{OtherStuff.employee(timeCard.id)}">view and update</a>#{/if}
 			          </td>
